@@ -1,39 +1,101 @@
 ---
 title: "Regressions Model Final Project"
-output: html_document
+output: word_document
 ---
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+## Introduction
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+Thanks for tuning in for this month's edition of Motor Trends magazine! In this issue, we'll be focusing in on the relationship between the type of transmision a vehicle has and the associated miles per gallon. Overall, we will want to answer two questions: 
 
-```{r}
+“Is an automatic or manual transmission better for MPG?”
+"Quantify the MPG difference between automatic and manual transmissions?"
+
+
+## Exploratory Analysis
+
+First, let's take a look at the data to understand what we're dealing with.
+
+```{r eval=FALSE}
+head(mtcars)
 summary(mtcars)
 ```
 
-You can also embed plots, for example:
+It looks like the transmission variable (am) is not being treated as a factor; let's change that! Then lets look at the correlation between the transmission and mpg. 
 
-```{r, echo=FALSE}
-plot(cars)
+```{r}
+mtcars$am <- as.factor(mtcars$am)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r eval=FALSE}
+summary(lm(mpg ~ ., data=mtcars))
+```
 
-You work for Motor Trend, a magazine about the automobile industry. Looking at a data set of a collection of cars, they are interested in exploring the relationship between a set of variables and miles per gallon (MPG) (outcome). They are particularly interested in the following two questions:
+Looking at all of the variables it looks like there is no significance with any of the specific variables, so let's look at the mpg and transmission specficially.
 
-“Is an automatic or manual transmission better for MPG”
-"Quantify the MPG difference between automatic and manual transmissions"
-Review criterialess 
-Peer Grading
+```{r eval=FALSE}
+summary(lm(mtcars$mpg ~ mtcars$am))
+```
+
+While the correlation is statistically significant given the p-value of 0.000285, let's  plot the mtcars data set. Given that many people's first inclination is that heavier cars tend to weigh more, I will plot miles per gallon vs weight, while coloring the data with the transmission factor. 
+
+```{r}
+library(ggplot2)
+g=ggplot(mtcars, aes(y=mpg, x=wt, colour=am))
+g= g + geom_point(colour = "grey50", size=5) + geom_smooth(method = lm, se = FALSE, colour= "black") + geom_point(size=4)
+g
+```
+
+From this plot, it looks like manual transmissions do have higher miles per gallon, but it also looks like the manual vehicles tend to weigh less as well. For this reason, we must look at other variables as well for this analysis. 
+
+In the appendix, you can see the various linear models we put together; however, the linear model below shows the variables with the most statistical significance for multiple variables. 
+
+```{r}
+final <- lm(mtcars$mpg ~ mtcars$am+mtcars$wt+mtcars$hp)
+summary(final)
+```
+
+## Residual Analysis 
+
+The residuals of this analysis support this analysis (which can be viewed in the appendix) due to several reasons: 
+
+1. In the Residuals vs Fitted, there is no consistency in the pattern
+2. Given that the Normal Q-Q points are close to the line, we can assume that the model is normally distributed
+3. We get 0 for the dfbeta test below 
+
+```{r}
+sum((abs(dfbetas(final)))>1)
+```
+
+## Conclusion 
+
+Based on the analysis, we cannot say that an automatic or manual transmission has a significant effect on the miles per gallon.  Rather, we should be looking at other variables such as weight and horsepower to answer this question.  
+
+However, based on this dataset alone, a move from automatic to manual car ownership would likely result in an increase of 7.245 miles per gallon. 
 
 
-Did the student interpret the coefficients correctly?
-Did the student do some exploratory data analyses?
-Did the student fit multiple models and detail their strategy for model selection?
-Did the student answer the questions of interest or detail why the question(s) is (are) not answerable?
-Did the student do a residual plot and some diagnostics?
-Did the student quantify the uncertainty in their conclusions and/or perform an inference correctly?
-Was the report brief (about 2 pages long) for the main body of the report and no longer than 5 with supporting appendix of figures?
-Did the report include an executive summary?
-Was the report done in Rmd (knitr)?
+## Appendix: Exploratory Data Analysis and Residuals 
+
+#### Model Fitting 
+
+Knowing that weight was a significant varable, we looked at linear models for other variables as well, to see if we could find models with other statistically significant variables. 
+
+The two models with the highest R Squared values were those with: 
+
+1. am, wt, cyl, and hp 
+2. am, wt, hp
+
+However, given that the R-Squared values were very similar for the two, I chose the second model since both weight and horsepower had statistically significant values. 
+
+```{r, echo=FALSE}
+summary(lm(mtcars$mpg ~ mtcars$am + mtcars$wt))
+summary(lm(mtcars$mpg ~ mtcars$am+mtcars$wt + mtcars$cyl))
+summary(lm(mtcars$mpg ~ mtcars$am+mtcars$wt+mtcars$hp))
+summary(lm(mtcars$mpg ~ mtcars$am+mtcars$wt+mtcars$cyl+mtcars$hp))
+```
+
+#### Residuals 
+
+```{r, echo=FALSE}
+plot(final)
+```
 

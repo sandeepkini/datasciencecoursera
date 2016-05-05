@@ -1,0 +1,60 @@
+---
+title: "ToothGrowth"
+output: word_document
+---
+
+### Overview
+
+For this excercise, we will look at the data for the ToothGrowth dataset, and determine which variables have an impact on the growth of teeth. 
+
+### Review of the Data 
+
+First, we need to look at the data to understand the variables and the overall summary. 
+```{r}
+head(ToothGrowth)
+summary(ToothGrowth)
+```
+
+Next, it will be helpful to see some graphs of the main variables: length, supplement, and dose. 
+
+```{r, echo=FALSE}
+library(ggplot2)
+ggplot(data=ToothGrowth, aes(x=as.factor(dose), y=len)) + 
+  geom_bar(stat="identity",position=position_dodge()) +
+    facet_grid(. ~ supp) +
+    xlab("Dose") +
+    ylab("Length")
+```
+
+
+### T Test for Supp
+
+Having reviewed our data, we should now begin looking at how t-tests compare across the variables. 
+
+```{r}
+t.test(len ~ supp, ToothGrowth, var.equal = FALSE)
+```
+
+Unfortunately, given that the p-value is above 0.05, the data is not statistically significant and we cannot reject the null hypothesis. 
+
+### T Test for Dose 
+
+Next, we will need to complete t-tests for the various dose levels. 
+
+```{r}
+t.test(ToothGrowth$len[ToothGrowth$dose == 2],ToothGrowth$len[ToothGrowth$dose == 1])
+```
+
+```{r}
+t.test(ToothGrowth$len[ToothGrowth$dose == 2],ToothGrowth$len[ToothGrowth$dose == 0.5])
+```
+
+```{r}
+t.test(ToothGrowth$len[ToothGrowth$dose == 1],ToothGrowth$len[ToothGrowth$dose == 0.5])
+```
+
+Given that all three levels have a p-value of less than 0.05, we can reject the null hypothesis for all three cases. 
+
+### Conclusion 
+
+Based on our conclusion, different dosages can have an effect on the length of teeth. However, the supplement does not. 

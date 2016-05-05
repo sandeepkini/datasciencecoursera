@@ -1,0 +1,56 @@
+---
+title: "SI Final Project PArt 1"
+output: word_document
+---
+
+##Overview
+
+For part I of the project, I will comaring the exponential distribution in R and with the Central Limit Theorem.  I will be utilizing the formula rexp(n, lambda) where lambda is the rate parameter.  The mean of exponential distribution is 1/lambda and the standard deviation is also 1/lambda.Specifically, I will be using 0.2 for lamda, with a distribution of averages of 40 exponentials. 
+
+##Simulations
+
+First, I put together the simulation using the formula provided. I set the seed so that this could be reproduced. 
+
+```{r}
+set.seed(5)
+lambda <- 0.2
+samp_size <- 40
+n <- 1000
+
+sim <- matrix(rexp(n*samp_size, rate=lambda), n, samp_size)
+means <- rowMeans(sim)
+```
+
+Sample Mean and Variance versus Theoretical Mean and Variance:
+
+Next, I will plot the historgram with both the distribution of the simulation versus that of the theoretical. 
+
+```{r, echo=FALSE}
+hist(means, breaks=100, prob=TRUE,
+     main="Simulation vs. Theoretical Distribution",
+     xlab="")
+
+# density of the averages of samples
+lines(density(means), col="blue")
+
+# center of the sample averages
+abline(v=mean(means), col="blue")
+
+# theoretical center of distribution
+abline(v=1/lambda, lty=2, col="red")
+
+# theoretical density of the averages of samples
+xfit <- seq(min(means), max(means), length=100)
+yfit <- dnorm(xfit, mean=1/lambda, sd=(1/lambda/sqrt(samp_size)))
+lines(xfit, yfit, pch=22, col="red", lty=2)
+
+# add legend
+legend('topright', c("simulation", "theoretical"), lty=c(1,2), col=c("blue", "red"))
+```
+
+The sample mean can be seen by the vertical blue line, just to the right of the theoretical red dotted line. 
+
+##Distribution 
+
+Above, you can see that the theoretical mean and the sample mean are very close. This is because, given by the central limit theorem, the larger the sample size, the liklier the sample will show a normal distribution.  
+
